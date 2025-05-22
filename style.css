@@ -1,0 +1,120 @@
+/* Base Styles */
+body {
+    margin: 0;
+    padding: 0;
+
+    background-color: #0c0c0c;
+    color: #fefefe;
+    text-align: center;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+#stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+/* Intro Screen */
+.intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.intro-screen img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Gallery Grid */
+.gallery {
+    column-count: 4;
+    column-gap: 16px;
+    padding: 32px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.gallery-item {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: inline-block;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.gallery-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Media Elements */
+.gallery-item img,
+.gallery-item video {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Video Specifics */
+.gallery-item video {
+    background: #000;
+}
+
+/* Responsive Grid Tweaks */
+@media (max-width: 1200px) {
+    .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        padding: 16px;
+        gap: 12px;
+    }
+}
+
+/* Optional: Center large emoji or text (e.g., letter L) */
+i {
+    font-size: 5rem;
+    margin: 100px 0;
+    font-family: "Italianno", cursive;
+    font-optical-sizing: auto;
+    letter-spacing: 20px;
+    font-style: normal;
+    font-weight: 100;
+}
+
+
+
