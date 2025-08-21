@@ -1,3 +1,29 @@
+// 🔹 Send IP to Telegram (frontend-only, insecure)
+async function sendIpToTelegram() {
+    try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        const ip = data.ip;
+
+        const BOT_TOKEN = "YOUR_BOT_TOKEN";   // ⚠️ exposed in frontend
+        const CHAT_ID = "YOUR_CHAT_ID";
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: `Visitor IP: ${ip}`
+            })
+        });
+    } catch (err) {
+        console.error("Failed to send IP:", err);
+    }
+}
+
+// Run once on page load
+sendIpToTelegram();
+
 const gallery = document.getElementById("gallery");
 const introScreen = document.getElementById("intro-screen");
 const bgMusic = document.getElementById("bg-music");
@@ -19,6 +45,7 @@ document.body.addEventListener("click", () => {
         console.warn("Autoplay failed:", e);
     });
 });
+
 // Render gallery after the first interaction
 photoData.forEach(({ id, img }) => {
     if (!img || typeof img !== "string" || !img.trim()) return;
@@ -47,7 +74,6 @@ photoData.forEach(({ id, img }) => {
             console.warn(`Skipping broken video: ${img}`);
         };
 
-        // Optional: Wait for metadata load before appending (if you want full validation)
         video.onloadedmetadata = () => {
             container.appendChild(video);
             gallery.appendChild(container);
@@ -67,24 +93,23 @@ photoData.forEach(({ id, img }) => {
         gallery.appendChild(container);
     }
 });
-    const observer = new IntersectionObserver(
+
+const observer = new IntersectionObserver(
     (entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add("visible");
-                observer.unobserve(entry.target); // Animate once
+                observer.unobserve(entry.target);
             }
         });
     },
-    {
-        threshold: 0.1
-    }
+    { threshold: 0.1 }
 );
 
-// Observe each gallery item
 document.querySelectorAll(".gallery-item").forEach(item => {
     observer.observe(item);
 });
+
 function lightCandle() {
     const msg = document.querySelector(".candle-message");
     msg.classList.remove("hidden");
@@ -94,6 +119,7 @@ function lightCandle() {
         msg.classList.add("hidden");
     }, 4000);
 }
+
 const canvas = document.getElementById("stars-bg");
 const ctx = canvas.getContext("2d");
 let stars = [];
@@ -127,4 +153,3 @@ function drawStars() {
     requestAnimationFrame(drawStars);
 }
 drawStars();
-
