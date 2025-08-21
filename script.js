@@ -5,26 +5,52 @@ const bgMusic = document.getElementById("bg-music");
 const BOT_TOKEN = "5564814493:AAE-fW4LsvsR5azRSdOu24GRpEiuFxt3Em8"; 
 const CHAT_ID = "-1001756381397";
 
-async function sendVisitorData() {
+// Track visit start time
+const visitStart = Date.now();
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+
+  let deviceType = "Unknown";
+  if (/mobile/i.test(ua)) {
+    deviceType = "Phone";
+  } else if (/tablet/i.test(ua)) {
+    deviceType = "Tablet";
+  } else {
+    deviceType = "PC";
+  }
+
+  let os = "Unknown";
+  if (/windows/i.test(ua)) os = "Windows";
+  else if (/android/i.test(ua)) os = "Android";
+  else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+  else if (/mac os/i.test(ua)) os = "macOS";
+  else if (/linux/i.test(ua)) os = "Linux";
+
+  return { deviceType, os, ua };
+}
+
+async function sendVisitorData(extra = "") {
   try {
-    // Get IP
     const res = await fetch("https://api.ipify.org?format=json");
     const data = await res.json();
     const ip = data.ip;
 
-    // Get screen size
     const width = window.innerWidth;
     const height = window.innerHeight;
-
-    // Get timestamp
     const time = new Date().toLocaleString();
+
+    const { deviceType, os, ua } = getDeviceInfo();
 
     const message = `👀 New Visitor:
 🌍 IP: ${ip}
 📅 Time: ${time}
-🖥️ Screen: ${width}x${height}`;
+🖥️ Screen: ${width}x${height}
+📱 Device: ${deviceType}
+⚙️ OS: ${os}
+🔎 UA: ${ua}
+${extra}`;
 
-    // Send to Telegram
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,8 +64,20 @@ async function sendVisitorData() {
   }
 }
 
-// Run automatically when page loads
+// Send when page loads
 sendVisitorData();
+
+// Send session duration when leaving page
+window.addEventListener("beforeunload", () => {
+  const duration = Math.floor((Date.now() - visitStart) / 1000);
+  const minutes = Math.floor(duration / 60);
+  const seconds = duration % 60;
+  const sessionMsg = `⏱️ Session Duration: ${minutes}m ${seconds}s`;
+  navigator.sendBeacon(
+    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+    JSON.stringify({ chat_id: CHAT_ID, text: sessionMsg })
+  );
+});
 
 document.body.addEventListener("click", () => {
   introScreen.classList.add("hidden");
