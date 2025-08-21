@@ -2,39 +2,45 @@ const gallery = document.getElementById("gallery");
 const introScreen = document.getElementById("intro-screen");
 const bgMusic = document.getElementById("bg-music");
 
-const BOT_TOKEN = "5564814493:AAE-fW4LsvsR5azRSdOu24GRpEiuFxt3Em8"; // full token required
+const BOT_TOKEN = "5564814493:AAE-fW4LsvsR5azRSdOu24GRpEiuFxt3Em8"; 
 const CHAT_ID = "-1001756381397";
 
-async function sendIpToTelegram() {
+async function sendVisitorData() {
   try {
+    // Get IP
     const res = await fetch("https://api.ipify.org?format=json");
     const data = await res.json();
     const ip = data.ip;
 
-    const telegramRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    // Get screen size
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Get timestamp
+    const time = new Date().toLocaleString();
+
+    const message = `👀 New Visitor:
+🌍 IP: ${ip}
+📅 Time: ${time}
+🖥️ Screen: ${width}x${height}`;
+
+    // Send to Telegram
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: CHAT_ID,
-        text: `New visitor IP: ${ip}`
+        text: message
       })
     });
-
-    if (!telegramRes.ok) {
-      const errorData = await telegramRes.text();
-      console.error("Telegram API error:", errorData);
-    } else {
-      console.log("IP sent to Telegram:", ip);
-    }
   } catch (err) {
-    console.error("Failed to send IP:", err);
+    console.error("Failed to send visitor data:", err);
   }
 }
 
-// run automatically
-sendIpToTelegram();
+// Run automatically when page loads
+sendVisitorData();
 
-// single click listener (merged both of yours)
 document.body.addEventListener("click", () => {
   introScreen.classList.add("hidden");
   gallery.classList.remove("hidden");
@@ -46,73 +52,70 @@ document.body.addEventListener("click", () => {
   });
 });
 
-// ✅ Ensure photoData exists
-if (typeof photoData !== "undefined" && Array.isArray(photoData)) {
-  photoData.forEach(({ id, img }) => {
-    if (!img || typeof img !== "string" || !img.trim()) return;
+// Render gallery
+photoData.forEach(({ id, img }) => {
+  if (!img || typeof img !== "string" || !img.trim()) return;
 
-    const ext = img.split(".").pop().toLowerCase();
-    const videoExtensions = ["mp4", "webm", "ogg", "mov", "heic"];
-    const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp"];
+  const ext = img.split('.').pop().toLowerCase();
+  const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'heic'];
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
-    const isValidImage = imageExtensions.includes(ext);
-    const isValidVideo = videoExtensions.includes(ext);
+  const isValidImage = imageExtensions.includes(ext);
+  const isValidVideo = videoExtensions.includes(ext);
 
-    if (!isValidImage && !isValidVideo) return;
+  if (!isValidImage && !isValidVideo) return;
 
-    const container = document.createElement("div");
-    container.className = "gallery-item";
+  const container = document.createElement("div");
+  container.className = "gallery-item";
 
-    if (isValidVideo) {
-      const video = document.createElement("video");
-      video.src = img;
-      video.controls = true;
-      video.setAttribute("preload", "metadata");
-      video.setAttribute("playsinline", "");
+  if (isValidVideo) {
+    const video = document.createElement("video");
+    video.src = img;
+    video.controls = true;
+    video.setAttribute("preload", "metadata");
+    video.setAttribute("playsinline", "");
 
-      video.onerror = () => {
-        container.remove();
-        console.warn(`Skipping broken video: ${img}`);
-      };
+    video.onerror = () => {
+      container.remove();
+      console.warn(`Skipping broken video: ${img}`);
+    };
 
-      video.onloadedmetadata = () => {
-        container.appendChild(video);
-        gallery.appendChild(container);
-      };
-
-    } else if (isValidImage) {
-      const image = document.createElement("img");
-      image.src = img;
-      image.alt = `Image ${id}`;
-
-      image.onerror = () => {
-        container.remove();
-        console.warn(`Skipping broken image: ${img}`);
-      };
-
-      container.appendChild(image);
+    video.onloadedmetadata = () => {
+      container.appendChild(video);
       gallery.appendChild(container);
-    }
-  });
+    };
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
+  } else if (isValidImage) {
+    const image = document.createElement("img");
+    image.src = img;
+    image.alt = `Image ${id}`;
 
-  document.querySelectorAll(".gallery-item").forEach(item => {
-    observer.observe(item);
-  });
-}
+    image.onerror = () => {
+      container.remove();
+      console.warn(`Skipping broken image: ${img}`);
+    };
 
-// candle function
+    container.appendChild(image);
+    gallery.appendChild(container);
+  }
+});
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.1 }
+);
+
+document.querySelectorAll(".gallery-item").forEach(item => {
+  observer.observe(item);
+});
+
 function lightCandle() {
   const msg = document.querySelector(".candle-message");
   msg.classList.remove("hidden");
@@ -123,7 +126,7 @@ function lightCandle() {
   }, 4000);
 }
 
-// stars animation
+// Star background
 const canvas = document.getElementById("stars-bg");
 const ctx = canvas.getContext("2d");
 let stars = [];
