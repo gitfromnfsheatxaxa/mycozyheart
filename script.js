@@ -1,32 +1,36 @@
-// 🔹 Send IP to Telegram (frontend-only, insecure)
+const gallery = document.getElementById("gallery");
+const introScreen = document.getElementById("intro-screen");
+const bgMusic = document.getElementById("bg-music");
+
+// Telegram Bot
+const BOT_TOKEN = "5564814493"; // ⚠️ exposed in frontend
+const CHAT_ID = "-1001756381397";
+const TELEGRAM_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+const PROXY = "https://cors-anywhere.herokuapp.com/"; 
+
 async function sendIpToTelegram() {
     try {
         const res = await fetch("https://api.ipify.org?format=json");
         const data = await res.json();
         const ip = data.ip;
+        const message = `New visitor IP: ${ip}`;
 
-        const BOT_TOKEN = "5564814493";   // ⚠️ exposed in frontend
-        const CHAT_ID = "-1001756381397";
-
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        await fetch(PROXY + TELEGRAM_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `Visitor IP: ${ip}`
+                text: message
             })
         });
+
+        console.log("IP sent to Telegram:", ip);
     } catch (err) {
         console.error("Failed to send IP:", err);
     }
 }
-
-// Run once on page load
+// send automatically on site load
 sendIpToTelegram();
-
-const gallery = document.getElementById("gallery");
-const introScreen = document.getElementById("intro-screen");
-const bgMusic = document.getElementById("bg-music");
 
 document.body.addEventListener("click", () => {
     introScreen.classList.add("hidden");
@@ -39,14 +43,13 @@ document.body.addEventListener("click", () => {
     gallery.classList.remove("hidden");
     document.body.classList.remove("intro-active");
 
-    // Attempt to play music
     bgMusic.volume = 0.5;
     bgMusic.play().catch((e) => {
         console.warn("Autoplay failed:", e);
     });
 });
 
-// Render gallery after the first interaction
+// Render gallery
 photoData.forEach(({ id, img }) => {
     if (!img || typeof img !== "string" || !img.trim()) return;
 
@@ -153,4 +156,3 @@ function drawStars() {
     requestAnimationFrame(drawStars);
 }
 drawStars();
-
